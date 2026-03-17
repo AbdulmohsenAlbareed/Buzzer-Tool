@@ -16,6 +16,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 
 .screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:24px;}
 .screen.active{display:flex;}
+#gameScreen{position:fixed;inset:0;overflow:hidden;padding:20px;height:100dvh;min-height:unset;}
 
 .logo{font-size:3.5rem;font-weight:900;letter-spacing:-2px;background:linear-gradient(135deg,var(--team-a),var(--gold),var(--team-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
 .tagline{color:var(--muted);font-size:.9rem;margin-bottom:36px;}
@@ -35,13 +36,13 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 .btn-join:active{transform:scale(.97);}
 
 /* game */
-.player-info{text-align:center;margin-bottom:36px;}
-.player-name-display{font-size:1.4rem;font-weight:700;margin-bottom:5px;}
+.player-info{text-align:center;margin-bottom:20px;}
+.player-name-display{font-size:1.2rem;font-weight:700;margin-bottom:4px;}
 .player-team-badge{display:inline-block;padding:3px 14px;border-radius:20px;font-size:.85rem;font-weight:700;}
 .badge-a{background:rgba(59,130,246,.2);color:var(--team-a);border:1px solid var(--team-a);}
 .badge-b{background:rgba(239,68,68,.2);color:var(--team-b);border:1px solid var(--team-b);}
 
-.buzz-container{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:340px;}
+.buzz-container{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:340px;}
 
 #buzzBtn{width:210px;height:210px;border-radius:50%;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:900;font-size:1.7rem;transition:all .15s;user-select:none;}
 #buzzBtn.ready-a{background:radial-gradient(circle at 35% 35%,#60a5fa,var(--team-a));color:white;box-shadow:0 8px 40px rgba(59,130,246,.5),0 0 0 6px rgba(59,130,246,.15);}
@@ -114,7 +115,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 <!-- NAME SCREEN -->
 <div class="screen active" id="joinScreen">
   <div class="logo">أداة الزر</div>
-  <div class="tagline">تطوير عبدالمحسن البريدي</div>
+  <div class="tagline">تطوير عبد المحسن البريدي</div>
   <div class="input-group">
     <label class="input-label">اسمك</label>
     <input type="text" class="input-field" id="playerName" placeholder="اكتب اسمك هنا..." maxlength="20">
