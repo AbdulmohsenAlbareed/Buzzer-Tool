@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حروف — لوحة الهوست</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12;
+    --card: #13131f;
+    --border: #2a2a40;
+    --gold: #f5c842;
+    --team-a: #3b82f6;
+    --team-b: #ef4444;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --buzz-glow: 0 0 60px rgba(245,200,66,0.6), 0 0 120px rgba(245,200,66,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(59,130,246,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(239,68,68,0.08) 0%, transparent 50%);
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .logo {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, var(--team-a), var(--gold), var(--team-b));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 4px;
+  }
+
+  /* SCORES */
+  .scores {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .score-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .score-card.team-a { border-color: rgba(59,130,246,0.4); }
+  .score-card.team-b { border-color: rgba(239,68,68,0.4); }
+  .score-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .score-card.team-a::before { background: var(--team-a); }
+  .score-card.team-b::before { background: var(--team-b); }
+  
+  .team-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .team-a .team-label { color: var(--team-a); }
+  .team-b .team-label { color: var(--team-b); }
+  
+  .score-num {
+    font-size: 4rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .team-a .score-num { color: var(--team-a); }
+  .team-b .score-num { color: var(--team-b); }
+
+  .score-btns {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .btn-score {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-score:hover { background: var(--border); transform: scale(1.05); }
+
+  /* BUZZ ZONE */
+  .buzz-zone {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 24px;
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 24px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s;
+  }
+  .buzz-zone.active {
+    border-color: var(--gold);
+    box-shadow: var(--buzz-glow);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: var(--buzz-glow); }
+    50% { box-shadow: 0 0 30px rgba(245,200,66,0.3); }
+  }
+
+  .buzz-idle {
+    color: var(--muted);
+    font-size: 1.1rem;
+  }
+  .buzz-icon-idle { font-size: 3rem; margin-bottom: 8px; opacity: 0.3; }
+
+  .buzz-active-content { display: none; width: 100%; }
+  .buzz-zone.active .buzz-idle { display: none; }
+  .buzz-zone.active .buzz-active-content { display: block; }
+
+  .buzz-crown { font-size: 2rem; margin-bottom: 4px; }
+  .buzz-player-name {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .buzz-team-badge {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+  .buzz-team-a { background: rgba(59,130,246,0.2); color: var(--team-a); border: 1px solid var(--team-a); }
+  .buzz-team-b { background: rgba(239,68,68,0.2); color: var(--team-b); border: 1px solid var(--team-b); }
+
+  /* RESET BTN */
+  .btn-reset {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border: none;
+    color: white;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    padding: 16px 48px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 4px 20px rgba(34,197,94,0.3);
+  }
+  .btn-reset:hover { transform: scale(1.03); box-shadow: 0 6px 30px rgba(34,197,94,0.5); }
+  .btn-reset:active { transform: scale(0.97); }
+
+  /* PLAYERS */
+  .section-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .players-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .player-col {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+  }
+  .player-col-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .team-a-col .player-col-title { color: var(--team-a); }
+  .team-b-col .player-col-title { color: var(--team-b); }
+  .player-chip {
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .player-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .team-a-dot { background: var(--team-a); }
+  .team-b-dot { background: var(--team-b); }
+  .no-players { color: var(--muted); font-size: 0.8rem; text-align: center; padding: 12px; }
+
+  /* STATUS */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--card);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    transition: background 0.3s;
+  }
+  .status-dot.connected { background: #22c55e; animation: blink 2s infinite; }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* RESET SCORES */
+  .btn-reset-scores {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.8rem;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .btn-reset-scores:hover { border-color: var(--team-b); color: var(--team-b); }
+
+  /* QR / LINK */
+  .join-link {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .join-url {
+    font-size: 0.9rem;
+    color: var(--gold);
+    word-break: break-all;
+    margin-bottom: 8px;
+  }
+  .btn-copy {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.85rem;
+    padding: 6px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-copy:hover { background: rgba(245,200,66,0.1); }
+
+  /* COUNTDOWN */
+  .countdown-wrap {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .countdown-wrap.show { display: flex; }
+  .countdown-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .countdown-ring {
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+  .countdown-ring svg {
+    transform: rotate(-90deg);
+  }
+  .countdown-ring circle {
+    fill: none;
+    stroke-width: 6;
+  }
+  .ring-bg { stroke: var(--border); }
+  .ring-progress {
+    stroke: var(--gold);
+    stroke-linecap: round;
+    stroke-dasharray: 226;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
+  }
+  .ring-progress.urgent { stroke: #ef4444; }
+  .countdown-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold);
+    transition: color 0.3s;
+  }
+  .countdown-num.urgent { color: #ef4444; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">حروف</div>
+  <div class="subtitle">لوحة تحكم الهوست</div>
+</div>
+
+<div class="status-bar">
+  <div class="status-dot" id="statusDot"></div>
+  <span id="statusText">جاري الاتصال...</span>
+</div>
+
+<!-- Join Link -->
+<div class="join-link">
+  <div class="section-title">رابط اللاعبين</div>
+  <div class="join-url" id="joinUrl">—</div>
+  <button class="btn-copy" onclick="copyLink()">نسخ الرابط</button>
+</div>
+
+<!-- SCORES -->
+<div class="scores">
+  <div class="score-card team-a">
+    <div class="team-label">الفريق أ</div>
+    <div class="score-num" id="scoreA">0</div>
+    <div class="score-btns">
+      <button class="btn-score" onclick="addScore('A', 1)">+1</button>
+      <button class="btn-score" onclick="addScore('A', 2)">+2</button>
+      <button class="btn-score" onclick="addScore('A', -1)">-1</button>
+    </div>
+  </div>
+  <div class="score-card team-b">
+    <div class="team-label">الفريق ب</div>
+    <div class="score-num" id="scoreB">0</div>
+    <div class="score-btns">
+      <button class="btn-score" onclick="addScore('B', 1)">+1</button>
+      <button class="btn-score" onclick="addScore('B', 2)">+2</button>
+      <button class="btn-score" onclick="addScore('B', -1)">-1</button>
+    </div>
+  </div>
+</div>
+<div style="text-align:center;">
+  <button class="btn-reset-scores" onclick="resetScores()">🔄 تصفير النقاط</button>
+</div>
+
+<!-- BUZZ ZONE -->
+<div style="margin: 24px 0;">
+  <div class="section-title" style="text-align:center">منطقة البزر</div>
+  <div class="buzz-zone" id="buzzZone">
+    <div class="buzz-idle">
+      <div class="buzz-icon-idle">🔔</div>
+      <div>في انتظار اللاعبين...</div>
+    </div>
+    <div class="buzz-active-content" id="buzzContent">
+      <div class="buzz-crown">👑</div>
+      <div class="buzz-player-name" id="buzzerName">—</div>
+      <div class="buzz-team-badge" id="buzzerTeam">الفريق —</div>
+      <div class="countdown-wrap" id="countdownWrap">
+        <div class="countdown-label">وقت الإجابة</div>
+        <div class="countdown-ring">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle class="ring-bg" cx="40" cy="40" r="36"/>
+            <circle class="ring-progress" id="ringProgress" cx="40" cy="40" r="36"/>
+          </svg>
+          <div class="countdown-num" id="countdownNum">3</div>
+        </div>
+      </div>
+      <br>
+      <button class="btn-reset" onclick="resetBuzzer()">🔄 ريست — الجولة التالية</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYERS -->
+<div class="section-title">اللاعبون المتصلون</div>
+<div class="players-grid">
+  <div class="player-col team-a-col">
+    <div class="player-col-title">الفريق أ</div>
+    <div id="playersA"><div class="no-players">لا أحد بعد</div></div>
+  </div>
+  <div class="player-col team-b-col">
+    <div class="player-col-title">الفريق ب</div>
+    <div id="playersB"><div class="no-players">لا أحد بعد</div></div>
+  </div>
+</div>
+
+<script>
+  const WS_URL = location.protocol === 'https:' 
+    ? `wss://${location.host}` 
+    : `ws://${location.host}`;
+
+  let ws;
+  let countdownInterval = null;
+  const COUNTDOWN_SECS = 3;
+  const RING_CIRC = 226; // 2 * π * 36
+
+  // ─── SOUND ENGINE ───────────────────────────────────────────
+  let audioCtx;
+  function getCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+
+  function playBuzzSound() {
+    try {
+      const ctx = getCtx();
+      // Sharp buzz: descending square wave
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'square';
+      o.frequency.setValueAtTime(900, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.35);
+      g.gain.setValueAtTime(0.35, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      o.start(); o.stop(ctx.currentTime + 0.4);
+    } catch(e) {}
+  }
+
+  function playTickSound(n) {
+    try {
+      const ctx = getCtx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine';
+      o.frequency.value = n === 1 ? 1200 : 880;
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      o.start(); o.stop(ctx.currentTime + 0.08);
+    } catch(e) {}
+  }
+
+  function playTimeupSound() {
+    try {
+      const ctx = getCtx();
+      [400, 300, 200].forEach((freq, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sawtooth';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.12);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.1);
+        o.start(ctx.currentTime + i * 0.12);
+        o.stop(ctx.currentTime + i * 0.12 + 0.1);
+      });
+    } catch(e) {}
+  }
+
+  // ─── COUNTDOWN ───────────────────────────────────────────────
+  function startCountdown() {
+    stopCountdown();
+    let remaining = COUNTDOWN_SECS;
+    document.getElementById('countdownWrap').classList.add('show');
+    updateCountdownUI(remaining);
+
+    countdownInterval = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        stopCountdown();
+        playTimeupSound();
+        updateCountdownUI(0);
+      } else {
+        updateCountdownUI(remaining);
+        playTickSound(remaining);
+      }
+    }, 1000);
+  }
+
+  function stopCountdown() {
+    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+    document.getElementById('countdownWrap').classList.remove('show');
+  }
+
+  function updateCountdownUI(n) {
+    const num = document.getElementById('countdownNum');
+    const ring = document.getElementById('ringProgress');
+    const frac = n / COUNTDOWN_SECS;
+    const offset = RING_CIRC * (1 - frac);
+    ring.style.strokeDashoffset = offset;
+    num.textContent = n;
+    const urgent = n <= 1;
+    num.classList.toggle('urgent', urgent);
+    ring.classList.toggle('urgent', urgent);
+  }
+
+  // ─── WEBSOCKET ───────────────────────────────────────────────
+  function connect() {
+    ws = new WebSocket(WS_URL);
+    
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: 'join_host' }));
+      document.getElementById('statusDot').classList.add('connected');
+      document.getElementById('statusText').textContent = 'متصل ✓';
+    };
+
+    ws.onclose = () => {
+      document.getElementById('statusDot').classList.remove('connected');
+      document.getElementById('statusText').textContent = 'انقطع الاتصال — جاري إعادة الاتصال...';
+      setTimeout(connect, 2000);
+    };
+
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      handleMessage(msg);
+    };
+  }
+
+  function handleMessage(msg) {
+    switch(msg.type) {
+      case 'state':
+        updateScores(msg.scores);
+        updatePlayers(msg.players);
+        if (msg.buzzer) showBuzzer(msg.buzzer);
+        break;
+      case 'buzz_event':
+        showBuzzer(msg.buzzer);
+        playBuzzSound();
+        startCountdown();
+        break;
+      case 'reset':
+        clearBuzzer();
+        break;
+      case 'score_update':
+        updateScores(msg.scores);
+        break;
+      case 'players_update':
+        updatePlayers(msg.players);
+        break;
+    }
+  }
+
+  function showBuzzer(b) {
+    document.getElementById('buzzerName').textContent = b.name;
+    const badge = document.getElementById('buzzerTeam');
+    badge.textContent = b.team === 'A' ? 'الفريق أ 🔵' : 'الفريق ب 🔴';
+    badge.className = 'buzz-team-badge ' + (b.team === 'A' ? 'buzz-team-a' : 'buzz-team-b');
+    document.getElementById('buzzZone').classList.add('active');
+  }
+
+  function clearBuzzer() {
+    document.getElementById('buzzZone').classList.remove('active');
+    stopCountdown();
+  }
+
+  function updateScores(scores) {
+    document.getElementById('scoreA').textContent = scores.A;
+    document.getElementById('scoreB').textContent = scores.B;
+  }
+
+  function updatePlayers(players) {
+    const aList = players.filter(p => p.team === 'A');
+    const bList = players.filter(p => p.team === 'B');
+    const renderList = (list) => list.length
+      ? list.map(p => `<div class="player-chip"><div class="player-dot ${p.team === 'A' ? 'team-a-dot' : 'team-b-dot'}"></div>${p.name}</div>`).join('')
+      : '<div class="no-players">لا أحد بعد</div>';
+    document.getElementById('playersA').innerHTML = renderList(aList);
+    document.getElementById('playersB').innerHTML = renderList(bList);
+  }
+
+  function resetBuzzer() { ws.send(JSON.stringify({ type: 'reset' })); }
+  function addScore(team, points) { ws.send(JSON.stringify({ type: 'add_score', team, points })); }
+  function resetScores() {
+    if (confirm('تبي تصفّر كل النقاط؟')) ws.send(JSON.stringify({ type: 'reset_scores' }));
+  }
+  function copyLink() {
+    const url = `${location.protocol}//${location.host}/player.html`;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = event.target;
+      btn.textContent = '✓ تم النسخ';
+      setTimeout(() => btn.textContent = 'نسخ الرابط', 2000);
+    });
+  }
+
+  window.onload = () => {
+    document.getElementById('joinUrl').textContent = `${location.protocol}//${location.host}/player.html`;
+    connect();
+  };
+</script>
+</body>
+</html>
