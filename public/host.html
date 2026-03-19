@@ -61,7 +61,26 @@ body {
 }
 .btn-copy:hover { background:rgba(245,200,66,.1); }
 
-/* ─── BUZZ ZONE ─── */
+.user-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:10px 16px; margin-bottom:14px; font-size:.85rem;
+}
+.user-bar-left { display:flex; align-items:center; gap:10px; }
+.plan-badge { padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:700; }
+.plan-badge.pro { background:rgba(245,200,66,.15); color:var(--gold); border:1px solid rgba(245,200,66,.4); }
+.plan-badge.free { background:rgba(107,107,138,.1); color:var(--muted); border:1px solid var(--border); }
+.sessions-left { color:var(--muted); font-size:.78rem; }
+.btn-upgrade { background:linear-gradient(135deg,var(--gold),#e6b800); border:none; color:#0a0a12; font-family:'Tajawal',sans-serif; font-size:.8rem; font-weight:900; padding:5px 12px; border-radius:8px; cursor:pointer; transition:all .2s; }
+.btn-logout { background:transparent; border:1px solid var(--border); color:var(--muted); font-family:'Tajawal',sans-serif; font-size:.78rem; padding:4px 10px; border-radius:8px; cursor:pointer; }
+.btn-logout:hover { border-color:var(--team-b); color:var(--team-b); }
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px; }
+.overlay-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:32px; max-width:380px; width:100%; text-align:center; }
+.overlay-icon { font-size:3rem; margin-bottom:12px; }
+.overlay-title { font-size:1.4rem; font-weight:900; margin-bottom:8px; }
+.overlay-sub { color:var(--muted); font-size:.9rem; margin-bottom:24px; line-height:1.6; }
+.btn-overlay-primary { display:block; width:100%; background:linear-gradient(135deg,var(--gold),#e6b800); border:none; color:#0a0a12; font-family:'Tajawal',sans-serif; font-size:1rem; font-weight:900; padding:13px; border-radius:12px; cursor:pointer; margin-bottom:10px; transition:all .2s; text-decoration:none; }
+.btn-overlay-secondary { display:block; width:100%; background:transparent; border:1px solid var(--border); color:var(--text); font-family:'Tajawal',sans-serif; font-size:.9rem; font-weight:700; padding:11px; border-radius:12px; cursor:pointer; text-decoration:none; }
 .buzz-zone {
   background:var(--card); border:2px solid var(--border); border-radius:22px;
   padding:28px; text-align:center; margin-bottom:16px;
@@ -174,56 +193,18 @@ body {
 
 .no-players { color:var(--muted); font-size:.8rem; text-align:center; padding:10px; }
 
-/* ─── Buzzer Popup ─── */
-.popup-overlay {
-  display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,.75); backdrop-filter:blur(6px);
-  z-index:200; align-items:center; justify-content:center; padding:20px;
+/* ─── Session Timer ─── */
+.session-timer {
+  display:none; align-items:center; justify-content:space-between;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:8px 14px; margin-bottom:14px; font-size:.82rem;
 }
-.popup-overlay.show { display:flex; }
-.popup-card {
-  background:var(--card); border:2px solid var(--gold);
-  border-radius:28px; padding:40px 32px; text-align:center;
-  max-width:360px; width:100%;
-  box-shadow:0 0 80px rgba(245,200,66,.3), 0 0 160px rgba(245,200,66,.1);
-  animation:popIn .25s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes popIn { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
-.popup-idle { color:var(--muted); }
-.popup-idle-icon { font-size:3.5rem; margin-bottom:12px; opacity:.3; }
-.popup-idle-text { font-size:1rem; }
-.popup-result { display:none; }
-.popup-result.show { display:block; }
-.popup-crown { font-size:2.5rem; margin-bottom:8px; }
-.popup-name {
-  font-size:3rem; font-weight:900; color:var(--gold);
-  margin-bottom:10px; line-height:1.1;
-  animation:nameIn .3s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes nameIn { from{transform:scale(.5);opacity:0} to{transform:scale(1);opacity:1} }
-.popup-team {
-  display:inline-block; padding:5px 20px; border-radius:20px;
-  font-size:1rem; font-weight:700; margin-bottom:28px;
-}
-.popup-team.team-a { background:rgba(59,130,246,.2); color:var(--team-a); border:1px solid var(--team-a); }
-.popup-team.team-b { background:rgba(239,68,68,.2); color:var(--team-b); border:1px solid var(--team-b); }
-.btn-close-popup {
-  background:rgba(255,255,255,.08); border:1px solid var(--border);
-  color:var(--muted); font-family:'Tajawal',sans-serif;
-  font-size:.9rem; font-weight:700; padding:10px 24px;
-  border-radius:12px; cursor:pointer; transition:all .2s;
-}
-.btn-close-popup:hover { background:rgba(255,255,255,.12); color:var(--text); }
-
-/* زر عرض الـ popup */
-.btn-show-buzzer {
-  width:100%; background:rgba(245,200,66,.08);
-  border:1px solid rgba(245,200,66,.3); color:var(--gold);
-  font-family:'Tajawal',sans-serif; font-size:.9rem; font-weight:700;
-  padding:10px; border-radius:12px; cursor:pointer;
-  transition:all .2s; margin-bottom:14px;
-}
-.btn-show-buzzer:hover { background:rgba(245,200,66,.15); }
+.session-timer.show { display:flex; }
+.session-timer.warning { border-color:rgba(239,68,68,.5); background:rgba(239,68,68,.06); }
+.timer-left { display:flex; align-items:center; gap:8px; color:var(--muted); }
+.timer-time { font-weight:700; font-size:.95rem; }
+.timer-time.urgent { color:#ef4444; animation:blink 1s infinite; }
+.btn-extend { background:linear-gradient(135deg,var(--gold),#e6b800); border:none; color:#0a0a12; font-family:'Tajawal',sans-serif; font-size:.78rem; font-weight:900; padding:5px 12px; border-radius:8px; cursor:pointer; }
 </head>
 <body>
 
@@ -237,35 +218,81 @@ body {
   <span id="statusText">جاري الاتصال...</span>
 </div>
 
+<!-- Session Timer Bar -->
+<div class="session-timer" id="sessionTimerBar">
+  <div class="timer-left">
+    <span>⏱️</span>
+    <span>وقت الجلسة المتبقي:</span>
+    <span class="timer-time" id="timerDisplay">15:00</span>
+  </div>
+  <button class="btn-extend" onclick="window.location.href='/pricing.html'">تمديد ⭐</button>
+</div>
+
+<!-- Session Warning Overlay -->
+<div class="overlay" id="warningOverlay" style="display:none">
+  <div class="overlay-card">
+    <div class="overlay-icon">⚠️</div>
+    <div class="overlay-title">٥ دقائق متبقية!</div>
+    <div class="overlay-sub">جلستك المجانية توشك تنتهي — اشترِ جلسة أو اشترك للمتابعة</div>
+    <a href="/pricing.html" class="btn-overlay-primary">اشترِ الآن</a>
+    <button class="btn-overlay-secondary" onclick="document.getElementById('warningOverlay').style.display='none'">متابعة (٥ دقائق)</button>
+  </div>
+</div>
+
+<!-- Session Expired Overlay -->
+<div class="overlay" id="expiredOverlay" style="display:none">
+  <div class="overlay-card">
+    <div class="overlay-icon">🕐</div>
+    <div class="overlay-title">انتهت الجلسة</div>
+    <div class="overlay-sub">انتهت الـ ١٥ دقيقة المجانية — اشترِ جلسة جديدة أو اشترك في Pro للاستخدام غير المحدود</div>
+    <a href="/pricing.html" class="btn-overlay-primary">اشترِ جلسة — 3 ريال</a>
+    <a href="/pricing.html#pro" class="btn-overlay-secondary">Pro شهري — 19 ريال</a>
+  </div>
+</div>
+
+<!-- User bar -->
+<div class="user-bar" id="userBar" style="display:none">
+  <div class="user-bar-left">
+    <span id="userName">—</span>
+    <span class="plan-badge free" id="planBadge">مجاني</span>
+    <span class="sessions-left" id="sessionsLeft"></span>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn-upgrade" id="btnUpgrade" onclick="window.location.href='/pricing.html'" style="display:none">ترقية ⭐</button>
+    <button class="btn-logout" onclick="logout()">خروج</button>
+  </div>
+</div>
+
+<!-- Auth required overlay -->
+<div class="overlay" id="authOverlay" style="display:none">
+  <div class="overlay-card">
+    <div class="overlay-icon">🔐</div>
+    <div class="overlay-title">سجّل دخولك أولاً</div>
+    <div class="overlay-sub">تحتاج حساب لبدء جلسة كهوست</div>
+    <a href="/login.html" class="btn-overlay-primary">تسجيل الدخول / حساب جديد</a>
+  </div>
+</div>
+
+<!-- Session blocked overlay -->
+<div class="overlay" id="sessionOverlay" style="display:none">
+  <div class="overlay-card">
+    <div class="overlay-icon">🎮</div>
+    <div class="overlay-title" id="sessionOverlayTitle">استنفدت جلساتك المجانية</div>
+    <div class="overlay-sub" id="sessionOverlayMsg">اشترك بـ 19 ريال/شهر للاستخدام غير المحدود</div>
+    <a href="/pricing.html" class="btn-overlay-primary">اشترك الآن — 19 ريال/شهر</a>
+    <button class="btn-overlay-secondary" onclick="document.getElementById('sessionOverlay').style.display='none'">لاحقاً</button>
+  </div>
+</div>
+
 <div class="join-link">
   <div class="section-title">رابط اللاعبين</div>
   <div class="join-url" id="joinUrl">—</div>
-  <button class="btn-copy" onclick="copyLink()">نسخ الرابط</button>
+  <button class="btn-copy" onclick="copyLink()">نسخ رابط اللاعبين</button>
+  <button class="btn-copy" style="margin-top:8px;border-color:#a855f7;color:#a855f7;" onclick="openDisplay()">🖥️ فتح شاشة العرض</button>
 </div>
 
 <!-- BUZZ ZONE -->
-<div class="section-title" style="text-align:center;margin-bottom:10px;">منطقة الزر</div>
-
-<!-- زر عرض الضاغط -->
-<button class="btn-show-buzzer" id="btnShowBuzzer" onclick="showBuzzerPopup()">
-  👁️ عرض الضاغط على الشاشة
-</button>
-
-<!-- Popup -->
-<div class="popup-overlay" id="buzzerPopup" onclick="closeBuzzerPopup(event)">
-  <div class="popup-card" id="popupCard">
-    <div class="popup-idle" id="popupIdle">
-      <div class="popup-idle-icon">🔔</div>
-      <div class="popup-idle-text">لم يضغط أحد بعد</div>
-    </div>
-    <div class="popup-result" id="popupResult">
-      <div class="popup-crown">👑</div>
-      <div class="popup-name" id="popupName">—</div>
-      <div class="popup-team" id="popupTeam">—</div>
-    </div>
-    <button class="btn-close-popup" onclick="document.getElementById('buzzerPopup').classList.remove('show')">إغلاق ✕</button>
-  </div>
-</div>
+<div class="section-title" style="text-align:center;margin-bottom:10px;">منطقة البزر</div>
 <div class="buzz-zone" id="buzzZone">
 
   <div class="buzz-idle">
@@ -430,42 +457,61 @@ function updatePlayers(players) {
   document.getElementById('playersB').innerHTML=render(bList);
 }
 
-// ─── Actions ───
+// ─── Session Timer ────────────────────────────────────────────
+let sessionTimerInterval = null;
+
+function startClientTimer(sessionEnd) {
+  if (!sessionEnd) return; // Pro = no limit
+  if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+
+  const bar = document.getElementById('sessionTimerBar');
+  const display = document.getElementById('timerDisplay');
+  bar.classList.add('show');
+
+  function tick() {
+    const remaining = Math.max(0, sessionEnd - Date.now());
+    const mins = Math.floor(remaining / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
+    display.textContent = `${mins}:${secs.toString().padStart(2,'0')}`;
+    const urgent = remaining < 2 * 60 * 1000; // أقل من دقيقتين
+    display.classList.toggle('urgent', urgent);
+    bar.classList.toggle('warning', urgent);
+    if (remaining === 0) clearInterval(sessionTimerInterval);
+  }
+  tick();
+  sessionTimerInterval = setInterval(tick, 1000);
+}
+
+// ─── Actions ─────────────────────────────────────────────────
 function sendReset() { ws.send(JSON.stringify({type:'reset'})); }
 function giveAdvantage() { ws.send(JSON.stringify({type:'advantage'})); }
 function kickPlayer(id) { if(confirm('تبي تطرد هذا اللاعب؟')) ws.send(JSON.stringify({type:'kick',playerId:id})); }
 function copyLink() {
-  navigator.clipboard.writeText(`${location.protocol}//${location.host}/player.html`).then(()=>{
+  navigator.clipboard.writeText(`${location.protocol}//${location.host}/player.html?room=${window._roomId||''}`).then(()=>{
     const b=event.target; b.textContent='✓ تم النسخ'; setTimeout(()=>b.textContent='نسخ الرابط',2000);
   });
 }
-
-// ─── Buzzer Popup ───
-let currentBuzzer = null;
-
-function showBuzzerPopup() {
-  const overlay = document.getElementById('buzzerPopup');
-  const idle    = document.getElementById('popupIdle');
-  const result  = document.getElementById('popupResult');
-
-  if (currentBuzzer) {
-    idle.style.display   = 'none';
-    result.classList.add('show');
-    document.getElementById('popupName').textContent = currentBuzzer.name;
-    const team = document.getElementById('popupTeam');
-    team.textContent  = currentBuzzer.team === 'A' ? 'الفريق أ 🔵' : 'الفريق ب 🔴';
-    team.className    = 'popup-team ' + (currentBuzzer.team === 'A' ? 'team-a' : 'team-b');
-  } else {
-    idle.style.display = 'block';
-    result.classList.remove('show');
-  }
-  overlay.classList.add('show');
+function openDisplay() {
+  window.open(`/display.html?room=${window._roomId||''}`, '_blank');
+}
+  await fetch('/api/logout', {method:'POST'});
+  window.location.href = '/login.html';
 }
 
-function closeBuzzerPopup(e) {
-  // أغلق لو ضغط خارج الكارد
-  if (e.target === document.getElementById('buzzerPopup')) {
-    document.getElementById('buzzerPopup').classList.remove('show');
+function updateUserBar(user) {
+  if (!user) return;
+  document.getElementById('userBar').style.display='flex';
+  document.getElementById('userName').textContent = user.name || user.email || '';
+  const badge = document.getElementById('planBadge');
+  badge.textContent = user.plan === 'pro' ? 'Pro ⭐' : 'مجاني';
+  badge.className = 'plan-badge ' + user.plan;
+  if (user.plan === 'free') {
+    const left = (user.sessions_limit - user.sessions_used);
+    document.getElementById('sessionsLeft').textContent = `(${left} جلسة متبقية)`;
+    document.getElementById('btnUpgrade').style.display = 'inline-block';
+  } else {
+    document.getElementById('sessionsLeft').textContent = '';
+    document.getElementById('btnUpgrade').style.display = 'none';
   }
 }
 
@@ -489,20 +535,36 @@ function handle(m) {
   switch(m.type) {
     case 'state':
       updatePlayers(m.players);
+      if (m.user) {
+        updateUserBar(m.user);
+        window._roomId = 'room_' + (m.user.id || '');
+        document.getElementById('joinUrl').textContent=`${location.protocol}//${location.host}/player.html?room=${window._roomId}`;
+      }
+      if (m.sessionEnd) startClientTimer(m.sessionEnd);
       if(m.mode==='advantage') showAdvantage(m.advantageTeam, m.advantageTeam==='A'?'B':'A');
       else if(m.buzzer) showBuzz(m.buzzer);
       break;
-    case 'buzz_event':
-      currentBuzzer = m.buzzer;
-      showBuzz(m.buzzer); playBuzz();
-      showBuzzerPopup(); // يفتح الـ popup تلقائياً
+    case 'session_warning':
+      document.getElementById('warningOverlay').style.display='flex';
       break;
+    case 'session_expired':
+      if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+      document.getElementById('timerDisplay').textContent = '0:00';
+      document.getElementById('expiredOverlay').style.display='flex';
+      document.getElementById('warningOverlay').style.display='none';
+      break;
+    case 'auth_required':
+      document.getElementById('authOverlay').style.display='flex';
+      break;
+    case 'session_blocked':
+      document.getElementById('sessionOverlayTitle').textContent = 'انتهت جلساتك';
+      document.getElementById('sessionOverlayMsg').textContent = m.reason;
+      document.getElementById('sessionOverlay').style.display='flex';
+      break;
+    case 'buzz_event': showBuzz(m.buzzer); playBuzz(); break;
     case 'advantage_start': showAdvantage(m.advantageTeam, m.blockedTeam); break;
     case 'advantage_end': clearBuzz(); break;
-    case 'reset':
-      currentBuzzer = null;
-      clearBuzz();
-      break;
+    case 'reset': clearBuzz(); break;
     case 'players_update': updatePlayers(m.players); break;
   }
 }

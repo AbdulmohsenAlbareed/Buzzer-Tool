@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-<title>حروف — اللاعب</title>
+<title>أداة الزر — اللاعب</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -115,7 +115,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 <!-- NAME SCREEN -->
 <div class="screen active" id="joinScreen">
   <div class="logo">أداة الزر</div>
-  <div class="tagline">تطوير عبدالمحسن البريدي</div>
+  <div class="tagline">لعبة الأسئلة التفاعلية</div>
   <div class="input-group">
     <label class="input-label">اسمك</label>
     <input type="text" class="input-field" id="playerName" placeholder="اكتب اسمك هنا..." maxlength="20">
@@ -227,7 +227,10 @@ function goToLobby(){
   document.getElementById('joinScreen').classList.remove('active');
   document.getElementById('lobbyScreen').classList.add('active');
   // request current players list
-  if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({type:'get_players'}));
+  if(ws&&ws.readyState===WebSocket.OPEN) {
+    const roomId = new URLSearchParams(location.search).get('room') || '';
+    ws.send(JSON.stringify({type:'get_players', roomId}));
+  }
 }
 
 function updateLobby(players){
@@ -246,7 +249,8 @@ function joinGame(){
   if(!myTeam){err.textContent='اختر فريقك';return;}
   err.textContent='';
   if(!ws||ws.readyState!==WebSocket.OPEN){err.textContent='لم يتصل بعد، انتظر...';return;}
-  ws.send(JSON.stringify({type:'join_player',name:myName,team:myTeam}));
+  const roomId = new URLSearchParams(location.search).get('room') || '';
+  ws.send(JSON.stringify({type:'join_player',name:myName,team:myTeam,roomId}));
 }
 
 function buzz(){if(gameBlocked)return;ws.send(JSON.stringify({type:'buzz'}));if(navigator.vibrate)navigator.vibrate([100,50,100]);}
@@ -335,6 +339,15 @@ function handle(m){
       break;
     case 'buzz_denied':
       if(navigator.vibrate)navigator.vibrate(200);
+      break;
+    case 'session_ended':
+    case 'host_session_ended':
+      stopAllCd();
+      document.getElementById('gameScreen').classList.remove('active');
+      document.getElementById('kickedScreen').classList.add('active');
+      document.querySelector('#kickedScreen .kicked-icon').textContent = '⏰';
+      document.querySelector('#kickedScreen .kicked-title').textContent = 'انتهت الجلسة';
+      document.querySelector('#kickedScreen .kicked-sub').textContent = 'انتهت جلسة الهوست المجانية';
       break;
     case 'kicked':
       document.getElementById('gameScreen').classList.remove('active');

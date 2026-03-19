@@ -1,38 +1,42 @@
-# حروف — لعبة البزر التفاعلية
+# أداة الزر — دليل الإعداد
 
-## الرفع على Railway (مجاناً) ✅
+## متغيرات البيئة على Railway
 
-### الخطوات:
-1. اذهب إلى https://railway.app وسجّل بحساب GitHub
-2. اضغط "New Project" → "Deploy from GitHub repo"
-3. ارفع الملفات على GitHub repo جديد
-4. Railway يكتشف Node.js تلقائياً ويشتغل
+```
+JWT_SECRET=نص_عشوائي_طويل
+ADMIN_SECRET=كلمة_سر_لوحة_الادارة
+DOMAIN=https://your-app.up.railway.app
+DB_PATH=/app/data/adatalzar.db
 
-### أو على Render (مجاناً أيضاً):
-1. اذهب إلى https://render.com
-2. "New Web Service" → ارفع الكود
-3. Build Command: `npm install`
-4. Start Command: `npm start`
+# MyFatoorah
+MF_TOKEN=رمز_API_من_MyFatoorah
+MF_SANDBOX=false
 
----
+# Google OAuth (اختياري)
+GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
+```
 
-## طريقة اللعب:
+## إعداد MyFatoorah
 
-### الهوست:
-- افتح الرابط الأساسي: `https://your-app.railway.app/`
-- شاشته تحتوي: نقاط الفريقين + منطقة البزر + قائمة اللاعبين
-- زر ريست يفتح الجولة للجميع
+1. سجّل على https://myfatoorah.com
+2. API Settings → انسخ API Token → ضعه في MF_TOKEN
+3. للاختبار: MF_SANDBOX=true
+4. للإنتاج: MF_SANDBOX=false
 
-### اللاعبون:
-- كل لاعب يفتح: `https://your-app.railway.app/player.html`
-- يختار اسمه وفريقه (أ أو ب)
-- الزر الكبير = البزر
+## الباقات
 
----
+| الباقة | السعر | المدة |
+|---|---|---|
+| مجاني | 0 | جلسة واحدة / 15 دقيقة |
+| جلسة | 3 ريال | ساعة كاملة |
+| Pro | 19 ريال/شهر | بلا حد |
 
-## الميزات:
-- ✅ Real-time WebSocket
-- ✅ يدعم أكثر من 4 لاعبين
-- ✅ نقاط قابلة للتعديل
-- ✅ اهتزاز الموبايل عند الضغط (Haptic)
-- ✅ تصميم عربي كامل
+## الروابط
+
+| الصفحة | الرابط |
+|---|---|
+| الهوست | `/` |
+| اللاعب | `/player.html?room=room_XXX` |
+| الباقات | `/pricing.html` |
+| الإدارة | `/admin.html` |
+| تسجيل الدخول | `/login.html` |
