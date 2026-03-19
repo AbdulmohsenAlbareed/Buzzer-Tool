@@ -173,7 +173,57 @@ body {
 .btn-kick:hover { background:rgba(239,68,68,.15); color:var(--team-b); border-color:var(--team-b); }
 
 .no-players { color:var(--muted); font-size:.8rem; text-align:center; padding:10px; }
-</style>
+
+/* ─── Buzzer Popup ─── */
+.popup-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.75); backdrop-filter:blur(6px);
+  z-index:200; align-items:center; justify-content:center; padding:20px;
+}
+.popup-overlay.show { display:flex; }
+.popup-card {
+  background:var(--card); border:2px solid var(--gold);
+  border-radius:28px; padding:40px 32px; text-align:center;
+  max-width:360px; width:100%;
+  box-shadow:0 0 80px rgba(245,200,66,.3), 0 0 160px rgba(245,200,66,.1);
+  animation:popIn .25s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+.popup-idle { color:var(--muted); }
+.popup-idle-icon { font-size:3.5rem; margin-bottom:12px; opacity:.3; }
+.popup-idle-text { font-size:1rem; }
+.popup-result { display:none; }
+.popup-result.show { display:block; }
+.popup-crown { font-size:2.5rem; margin-bottom:8px; }
+.popup-name {
+  font-size:3rem; font-weight:900; color:var(--gold);
+  margin-bottom:10px; line-height:1.1;
+  animation:nameIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes nameIn { from{transform:scale(.5);opacity:0} to{transform:scale(1);opacity:1} }
+.popup-team {
+  display:inline-block; padding:5px 20px; border-radius:20px;
+  font-size:1rem; font-weight:700; margin-bottom:28px;
+}
+.popup-team.team-a { background:rgba(59,130,246,.2); color:var(--team-a); border:1px solid var(--team-a); }
+.popup-team.team-b { background:rgba(239,68,68,.2); color:var(--team-b); border:1px solid var(--team-b); }
+.btn-close-popup {
+  background:rgba(255,255,255,.08); border:1px solid var(--border);
+  color:var(--muted); font-family:'Tajawal',sans-serif;
+  font-size:.9rem; font-weight:700; padding:10px 24px;
+  border-radius:12px; cursor:pointer; transition:all .2s;
+}
+.btn-close-popup:hover { background:rgba(255,255,255,.12); color:var(--text); }
+
+/* زر عرض الـ popup */
+.btn-show-buzzer {
+  width:100%; background:rgba(245,200,66,.08);
+  border:1px solid rgba(245,200,66,.3); color:var(--gold);
+  font-family:'Tajawal',sans-serif; font-size:.9rem; font-weight:700;
+  padding:10px; border-radius:12px; cursor:pointer;
+  transition:all .2s; margin-bottom:14px;
+}
+.btn-show-buzzer:hover { background:rgba(245,200,66,.15); }
 </head>
 <body>
 
@@ -195,6 +245,27 @@ body {
 
 <!-- BUZZ ZONE -->
 <div class="section-title" style="text-align:center;margin-bottom:10px;">منطقة الزر</div>
+
+<!-- زر عرض الضاغط -->
+<button class="btn-show-buzzer" id="btnShowBuzzer" onclick="showBuzzerPopup()">
+  👁️ عرض الضاغط على الشاشة
+</button>
+
+<!-- Popup -->
+<div class="popup-overlay" id="buzzerPopup" onclick="closeBuzzerPopup(event)">
+  <div class="popup-card" id="popupCard">
+    <div class="popup-idle" id="popupIdle">
+      <div class="popup-idle-icon">🔔</div>
+      <div class="popup-idle-text">لم يضغط أحد بعد</div>
+    </div>
+    <div class="popup-result" id="popupResult">
+      <div class="popup-crown">👑</div>
+      <div class="popup-name" id="popupName">—</div>
+      <div class="popup-team" id="popupTeam">—</div>
+    </div>
+    <button class="btn-close-popup" onclick="document.getElementById('buzzerPopup').classList.remove('show')">إغلاق ✕</button>
+  </div>
+</div>
 <div class="buzz-zone" id="buzzZone">
 
   <div class="buzz-idle">
@@ -369,6 +440,35 @@ function copyLink() {
   });
 }
 
+// ─── Buzzer Popup ───
+let currentBuzzer = null;
+
+function showBuzzerPopup() {
+  const overlay = document.getElementById('buzzerPopup');
+  const idle    = document.getElementById('popupIdle');
+  const result  = document.getElementById('popupResult');
+
+  if (currentBuzzer) {
+    idle.style.display   = 'none';
+    result.classList.add('show');
+    document.getElementById('popupName').textContent = currentBuzzer.name;
+    const team = document.getElementById('popupTeam');
+    team.textContent  = currentBuzzer.team === 'A' ? 'الفريق أ 🔵' : 'الفريق ب 🔴';
+    team.className    = 'popup-team ' + (currentBuzzer.team === 'A' ? 'team-a' : 'team-b');
+  } else {
+    idle.style.display = 'block';
+    result.classList.remove('show');
+  }
+  overlay.classList.add('show');
+}
+
+function closeBuzzerPopup(e) {
+  // أغلق لو ضغط خارج الكارد
+  if (e.target === document.getElementById('buzzerPopup')) {
+    document.getElementById('buzzerPopup').classList.remove('show');
+  }
+}
+
 // ─── WebSocket ───
 function connect() {
   ws=new WebSocket(WS_URL);
@@ -392,10 +492,17 @@ function handle(m) {
       if(m.mode==='advantage') showAdvantage(m.advantageTeam, m.advantageTeam==='A'?'B':'A');
       else if(m.buzzer) showBuzz(m.buzzer);
       break;
-    case 'buzz_event': showBuzz(m.buzzer); playBuzz(); break;
+    case 'buzz_event':
+      currentBuzzer = m.buzzer;
+      showBuzz(m.buzzer); playBuzz();
+      showBuzzerPopup(); // يفتح الـ popup تلقائياً
+      break;
     case 'advantage_start': showAdvantage(m.advantageTeam, m.blockedTeam); break;
     case 'advantage_end': clearBuzz(); break;
-    case 'reset': clearBuzz(); break;
+    case 'reset':
+      currentBuzzer = null;
+      clearBuzz();
+      break;
     case 'players_update': updatePlayers(m.players); break;
   }
 }
