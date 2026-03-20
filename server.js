@@ -24,7 +24,8 @@ const rooms = {};
 
 function getRoom(id) {
   if (!rooms[id]) rooms[id] = {
-    host: null, players: {}, displays: {},
+    hosts: {},   // عدة هوستات في نفس الوقت
+    players: {}, displays: {},
     buzzer: null, blocked: false,
     mode: 'all', advantageTeam: null, advantageTimer: null
   };
@@ -33,7 +34,7 @@ function getRoom(id) {
 
 function bcast(room, data, skip) {
   const msg = JSON.stringify(data);
-  if (room.host?.readyState === 1 && room.host._id !== skip) room.host.send(msg);
+  Object.values(room.hosts).forEach(h => { if (h.readyState === 1 && h._id !== skip) h.send(msg); });
   Object.values(room.players).forEach(p => { if (p.ws.readyState === 1 && p.ws._id !== skip) p.ws.send(msg); });
   Object.values(room.displays).forEach(d => { if (d.readyState === 1 && d._id !== skip) d.send(msg); });
 }
@@ -56,7 +57,8 @@ wss.on('connection', (ws) => {
       case 'join_host': {
         const roomId = msg.roomId || `room_${ws._id}`;
         const room = getRoom(roomId);
-        room.host = ws; ws._roomId = roomId; ws._role = 'host';
+        room.hosts[ws._id] = ws;
+        ws._roomId = roomId; ws._role = 'host';
         send(ws, {
           type: 'state', roomId,
           buzzer: room.buzzer, blocked: room.blocked,
@@ -144,8 +146,9 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     const room = ws._roomId ? rooms[ws._roomId] : null; if (!room) return;
-    if (ws._role === 'host') { room.host = null; }
-    else if (ws._role === 'display') { delete room.displays[ws._id]; }
+    if (ws._role === 'host') {
+      delete room.hosts[ws._id];
+    } else if (ws._role === 'display') { delete room.displays[ws._id]; }
     else if (ws._role === 'player') {
       delete room.players[ws._id];
       bcast(room, { type: 'players_update', players: playersList(room) });

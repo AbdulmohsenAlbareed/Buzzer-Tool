@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>أداة الزر — الهوست</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{--bg:#0a0a12;--card:#13131f;--border:#2a2a40;--gold:#f5c842;--team-a:#3b82f6;--team-b:#ef4444;--green:#22c55e;--text:#e8e8f0;--muted:#6b6b8a;--buzz-glow:0 0 60px rgba(245,200,66,.5),0 0 120px rgba(245,200,66,.25);--adv-glow:0 0 60px rgba(168,85,247,.5),0 0 120px rgba(168,85,247,.2);}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -21,8 +22,12 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 .join-url{font-size:.88rem;color:var(--gold);word-break:break-all;margin-bottom:8px;}
 .btn-copy{background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Tajawal',sans-serif;font-size:.85rem;padding:5px 14px;border-radius:8px;cursor:pointer;transition:all .2s;margin-left:6px;}
 .btn-copy:hover{background:rgba(245,200,66,.1);}
-.btn-display{background:transparent;border:1px solid #a855f7;color:#a855f7;font-family:'Tajawal',sans-serif;font-size:.85rem;padding:5px 14px;border-radius:8px;cursor:pointer;transition:all .2s;}
-.btn-display:hover{background:rgba(168,85,247,.1);}
+.btn-qr{background:transparent;border:1px solid var(--team-a);color:var(--team-a);font-family:'Tajawal',sans-serif;font-size:.85rem;padding:5px 14px;border-radius:8px;cursor:pointer;transition:all .2s;margin-left:6px;}
+.btn-qr:hover{background:rgba(59,130,246,.1);}
+.qr-wrap{display:none;margin-top:14px;flex-direction:column;align-items:center;gap:8px;}
+.qr-wrap.show{display:flex;}
+.qr-label{font-size:.75rem;color:var(--muted);font-weight:700;letter-spacing:1px;}
+#qrCanvas{border-radius:12px;background:white;padding:10px;}
 .buzz-zone{background:var(--card);border:2px solid var(--border);border-radius:22px;padding:28px;text-align:center;margin-bottom:16px;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .4s;}
 .buzz-zone.active{border-color:var(--gold);box-shadow:var(--buzz-glow);animation:pulse 1.5s infinite;}
 .buzz-zone.advantage-mode{border-color:#a855f7;box-shadow:var(--adv-glow);animation:pulse-adv 1.5s infinite;}
@@ -97,7 +102,17 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
   <div class="section-title">شارك الرابط مع اللاعبين</div>
   <div class="join-url" id="joinUrl">—</div>
   <button class="btn-copy" onclick="copyLink()">نسخ الرابط</button>
+  <button class="btn-qr" onclick="toggleQR()">📷 QR Code</button>
   <button class="btn-display" onclick="openDisplay()">🖥️ شاشة العرض</button>
+  <div class="qr-wrap" id="qrWrap">
+    <div class="qr-label">امسح الكود بالجوال للدخول مباشرة</div>
+    <canvas id="qrCanvas"></canvas>
+  </div>
+  <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+    <div class="qr-label" style="margin-bottom:6px;">رابط الهوست — افتحه على أي جهاز ثاني</div>
+    <div class="join-url" id="hostUrl" style="font-size:.78rem;color:var(--muted);"></div>
+    <button class="btn-copy" style="margin-top:6px;font-size:.78rem;" onclick="copyHostLink()">نسخ رابط الهوست</button>
+  </div>
 </div>
 
 <div class="section-title" style="text-align:center;margin-bottom:10px;">منطقة البزر</div>
@@ -143,9 +158,103 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 
 <script>
 const WS_URL=location.protocol==='https:'?`wss://${location.host}`:`ws://${location.host}`;
+const urlRoomId=new URLSearchParams(location.search).get('room')||'';
 let ws,roomId='';
 const CD_SECS=3,ADV_SECS=10,CIRC=188;
-let cdInterval=null,advInterval=null,audioCtx;
+let cdInterval=null,advInterval=null,audioCtx,qrGenerated=false;
+
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playBuzz(){try{const c=getCtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='square';o.frequency.setValueAtTime(900,c.currentTime);o.frequency.exponentialRampToValueAtTime(200,c.currentTime+.35);g.gain.setValueAtTime(.35,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.4);}catch(e){}}
+function playTick(n){try{const c=getCtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=n===1?1200:880;g.gain.setValueAtTime(.15,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.08);o.start();o.stop(c.currentTime+.08);}catch(e){}}
+function playTimeup(){try{const c=getCtx();[400,300,200].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.value=f;g.gain.setValueAtTime(.2,c.currentTime+i*.12);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+i*.12+.1);o.start(c.currentTime+i*.12);o.stop(c.currentTime+i*.12+.1);});}catch(e){}}
+
+function startCd(){stopCd();let r=CD_SECS;document.getElementById('cdWrap').classList.add('show');updateCd(r);cdInterval=setInterval(()=>{r--;if(r<=0){stopCd();playTimeup();updateCd(0);}else{updateCd(r);playTick(r);}},1000);}
+function stopCd(){if(cdInterval){clearInterval(cdInterval);cdInterval=null;}document.getElementById('cdWrap').classList.remove('show');}
+function updateCd(n){const num=document.getElementById('cdNum'),ring=document.getElementById('ringProg');ring.style.strokeDashoffset=CIRC*(1-n/CD_SECS);num.textContent=n;const u=n<=1;num.classList.toggle('urgent',u);ring.classList.toggle('urgent',u);}
+function startAdvCd(){stopAdvCd();let r=ADV_SECS;document.getElementById('advCdWrap').classList.add('show');updateAdvCd(r);advInterval=setInterval(()=>{r--;if(r<=0){stopAdvCd();updateAdvCd(0);}else{updateAdvCd(r);if(r<=3)playTick(r);}},1000);}
+function stopAdvCd(){if(advInterval){clearInterval(advInterval);advInterval=null;}}
+function updateAdvCd(n){document.getElementById('advCdNum').textContent=n;document.getElementById('advRingProg').style.strokeDashoffset=CIRC*(1-n/ADV_SECS);}
+
+function showBuzz(b){
+  document.getElementById('buzzerName').textContent=b.name;
+  const badge=document.getElementById('buzzerTeam');
+  badge.textContent=b.team==='A'?'الفريق أ 🔵':'الفريق ب 🔴';
+  badge.className='buzz-team-badge '+(b.team==='A'?'badge-a':'badge-b');
+  document.getElementById('buzzZone').classList.remove('advantage-mode');
+  document.getElementById('buzzZone').classList.add('active');
+  startCd();
+}
+function showAdvantage(adv,blk){
+  stopCd();
+  document.getElementById('advInfo').textContent=(adv==='A'?'الفريق أ 🔵':'الفريق ب 🔴')+' لديه أفضلية';
+  document.getElementById('advBlockedLabel').textContent=(blk==='A'?'الفريق أ 🔵':'الفريق ب 🔴')+' — محجوب';
+  document.getElementById('buzzZone').classList.remove('active');
+  document.getElementById('buzzZone').classList.add('advantage-mode');
+  startAdvCd();
+}
+function clearBuzz(){stopCd();stopAdvCd();document.getElementById('buzzZone').classList.remove('active','advantage-mode');}
+function updatePlayers(players){
+  const aList=players.filter(p=>p.team==='A'),bList=players.filter(p=>p.team==='B');
+  const render=list=>list.length?list.map(p=>`<div class="player-chip"><div class="player-left"><div class="player-dot ${p.team==='A'?'team-a-dot':'team-b-dot'}"></div>${p.name}</div><button class="btn-kick" onclick="kickPlayer('${p.id}')">طرد</button></div>`).join(''):'<div class="no-players">لا أحد بعد</div>';
+  document.getElementById('playersA').innerHTML=render(aList);
+  document.getElementById('playersB').innerHTML=render(bList);
+}
+function updateLinks(){
+  document.getElementById('joinUrl').textContent=`${location.protocol}//${location.host}/player.html?room=${roomId}`;
+  document.getElementById('hostUrl').textContent=`${location.protocol}//${location.host}/host.html?room=${roomId}`;
+}
+function generateQR(){
+  if(qrGenerated)return;
+  const url=`${location.protocol}//${location.host}/player.html?room=${roomId}`;
+  document.getElementById('qrCanvas').innerHTML='';
+  new QRCode(document.getElementById('qrCanvas'),{text:url,width:180,height:180,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  qrGenerated=true;
+}
+function toggleQR(){
+  const wrap=document.getElementById('qrWrap');
+  wrap.classList.toggle('show');
+  if(wrap.classList.contains('show'))generateQR();
+}
+function sendReset(){ws.send(JSON.stringify({type:'reset'}));}
+function giveAdvantage(){ws.send(JSON.stringify({type:'advantage'}));}
+function kickPlayer(id){if(confirm('تبي تطرد هذا اللاعب؟'))ws.send(JSON.stringify({type:'kick',playerId:id}));}
+function copyLink(){navigator.clipboard.writeText(`${location.protocol}//${location.host}/player.html?room=${roomId}`).then(()=>{const b=event.target;b.textContent='✓ تم النسخ';setTimeout(()=>b.textContent='نسخ الرابط',2000);});}
+function copyHostLink(){navigator.clipboard.writeText(`${location.protocol}//${location.host}/host.html?room=${roomId}`).then(()=>{const b=event.target;b.textContent='✓ تم النسخ';setTimeout(()=>b.textContent='نسخ رابط الهوست',2000);});}
+function openDisplay(){window.open(`/display.html?room=${roomId}`,'_blank');}
+
+function connect(){
+  ws=new WebSocket(WS_URL);
+  ws.onopen=()=>{
+    ws.send(JSON.stringify({type:'join_host',roomId:urlRoomId||undefined}));
+    document.getElementById('statusDot').classList.add('connected');
+    document.getElementById('statusText').textContent='متصل ✓';
+  };
+  ws.onclose=()=>{
+    document.getElementById('statusDot').classList.remove('connected');
+    document.getElementById('statusText').textContent='انقطع — جاري إعادة الاتصال...';
+    setTimeout(connect,2000);
+  };
+  ws.onmessage=e=>{
+    const m=JSON.parse(e.data);
+    switch(m.type){
+      case 'state':
+        if(m.roomId){roomId=m.roomId;updateLinks();}
+        updatePlayers(m.players);
+        if(m.mode==='advantage')showAdvantage(m.advantageTeam,m.advantageTeam==='A'?'B':'A');
+        else if(m.buzzer)showBuzz(m.buzzer);
+        break;
+      case 'buzz_event':showBuzz(m.buzzer);playBuzz();break;
+      case 'advantage_start':showAdvantage(m.advantageTeam,m.blockedTeam);break;
+      case 'advantage_end':clearBuzz();break;
+      case 'reset':clearBuzz();break;
+      case 'players_update':updatePlayers(m.players);break;
+    }
+  };
+}
+window.onload=()=>connect();
+</script>
+</body>
+</html>
 
 function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
 function playBuzz(){try{const c=getCtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='square';o.frequency.setValueAtTime(900,c.currentTime);o.frequency.exponentialRampToValueAtTime(200,c.currentTime+.35);g.gain.setValueAtTime(.35,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.4);}catch(e){}}
