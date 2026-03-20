@@ -27,7 +27,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 .qr-wrap{display:none;margin-top:14px;flex-direction:column;align-items:center;gap:8px;}
 .qr-wrap.show{display:flex;}
 .qr-label{font-size:.75rem;color:var(--muted);font-weight:700;letter-spacing:1px;}
-#qrCanvas{border-radius:12px;background:white;padding:10px;}
+#qrCanvas{border-radius:12px;background:white;padding:10px;display:inline-block;}
+#qrCanvas img{display:block;}
 .buzz-zone{background:var(--card);border:2px solid var(--border);border-radius:22px;padding:28px;text-align:center;margin-bottom:16px;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .4s;}
 .buzz-zone.active{border-color:var(--gold);box-shadow:var(--buzz-glow);animation:pulse 1.5s infinite;}
 .buzz-zone.advantage-mode{border-color:#a855f7;box-shadow:var(--adv-glow);animation:pulse-adv 1.5s infinite;}
@@ -106,7 +107,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn-display" onclick="openDisplay()">🖥️ شاشة العرض</button>
   <div class="qr-wrap" id="qrWrap">
     <div class="qr-label">امسح الكود بالجوال للدخول مباشرة</div>
-    <canvas id="qrCanvas"></canvas>
+    <div id="qrCanvas"></div>
   </div>
   <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
     <div class="qr-label" style="margin-bottom:6px;">رابط الهوست — افتحه على أي جهاز ثاني</div>
@@ -206,8 +207,9 @@ function updateLinks(){
 function generateQR(){
   if(qrGenerated)return;
   const url=`${location.protocol}//${location.host}/player.html?room=${roomId}`;
-  document.getElementById('qrCanvas').innerHTML='';
-  new QRCode(document.getElementById('qrCanvas'),{text:url,width:180,height:180,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  const el=document.getElementById('qrCanvas');
+  el.innerHTML='';
+  new QRCode(el,{text:url,width:180,height:180,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
   qrGenerated=true;
 }
 function toggleQR(){

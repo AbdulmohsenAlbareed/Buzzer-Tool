@@ -78,10 +78,12 @@ wss.on('connection', (ws) => {
 
       case 'join_player': {
         const { name, team, roomId } = msg;
-        if (!name || !team || !roomId) return;
+        if (!name || !team) return;
+        if (!roomId) { send(ws, { type: 'error', message: 'رابط الغرفة غير صحيح — تأكد من الرابط' }); return; }
         const room = rooms[roomId];
-        if (!room || !room.host) { send(ws, { type: 'error', message: 'الغرفة غير موجودة' }); return; }
-        if (Object.keys(room.players).length >= MAX_PLAYERS) { send(ws, { type: 'error', message: 'الغرفة ممتلئة' }); return; }
+        if (!room) { send(ws, { type: 'error', message: 'الغرفة غير موجودة — تأكد من الرابط' }); return; }
+        if (Object.keys(room.hosts).length === 0) { send(ws, { type: 'error', message: 'الهوست لم يبدأ الجلسة بعد — انتظر قليلاً' }); return; }
+        if (Object.keys(room.players).length >= MAX_PLAYERS) { send(ws, { type: 'error', message: 'الغرفة ممتلئة (٤ لاعبين)' }); return; }
         room.players[ws._id] = { id: ws._id, name, team, ws };
         ws._role = 'player'; ws._roomId = roomId;
         send(ws, { type: 'joined', id: ws._id, name, team, blocked: room.blocked, mode: room.mode, advantageTeam: room.advantageTeam, buzzer: room.buzzer });

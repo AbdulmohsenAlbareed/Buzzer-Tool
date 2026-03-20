@@ -337,6 +337,10 @@ function handle(m){
     case 'players_update':
       updateLobby(m.players);
       break;
+    case 'error':
+      const errEl = document.getElementById('lobbyError') || document.getElementById('joinError');
+      if(errEl) errEl.textContent = m.message;
+      break;
     case 'buzz_denied':
       if(navigator.vibrate)navigator.vibrate(200);
       break;
